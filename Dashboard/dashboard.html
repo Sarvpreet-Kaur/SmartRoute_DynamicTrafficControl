@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dynamic Traffic Flow | Live Dashboard</title>
+
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --bg-color: #0c0c0c;
+  --card-bg: #161616;
+  --accent-blue: #00f7ff;
+  --accent-green: #00ff6a;
+  --accent-red: #ff2f2f;
+  --text-color: #ffffff;
+  --font-main: 'Inter', sans-serif;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-main);
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  overflow-x: hidden;
+}
+
+/* NAVBAR */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #111;
+  padding: 1rem 2rem;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+  box-sizing: border-box;
+}
+
+nav .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  white-space: nowrap;
+}
+
+nav ul {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-wrap: nowrap;    /* prevent breaking */
+}
+
+nav ul li {
+  cursor: pointer;
+  font-weight: 600;
+  color: #ccc;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  transition: 0.3s;
+  white-space: nowrap;   /* IMPORTANT — prevents text clipping */
+  flex-shrink: 0;        /* prevents items from squeezing */
+}
+
+nav ul li a {
+  color: inherit;
+  text-decoration: none;
+}
+
+nav ul li:hover {
+  color: var(--accent-blue);
+  background-color: rgba(0, 247, 255, 0.1);
+}
+
+nav ul li.active {
+  background-color: rgba(0, 247, 255, 0.15);
+  color: var(--accent-blue);
+  box-shadow: inset 0 0 5px rgba(0, 247, 255, 0.3);
+}
+
+/* RESPONSIVE FIX */
+@media (max-width: 1100px) {
+  nav ul {
+    gap: 1.2rem;  /* reduce spacing */
+  }
+}
+
+@media (max-width: 900px) {
+  nav ul {
+    gap: 0.7rem;
+  }
+}
+
+@media (max-width: 768px) {
+  nav {
+    flex-wrap: wrap;
+  }
+
+  nav ul {
+    width: 100%;
+    justify-content: center;
+    margin-top: 0.8rem;
+  }
+}
+
+
+/* Reset all link colors across the page */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:link,
+a:visited,
+a:hover,
+a:active {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* MAIN SECTION */
+.dashboard {
+  padding: 8rem 3rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.dashboard h1 {
+  font-size: 2.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.dashboard p {
+  color: var(--accent-blue);
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+/* GRID LAYOUT */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 0 15px rgba(0, 247, 255, 0.08);
+}
+
+/* FEED SECTION */
+.feed-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.feed-header span {
+  background: var(--accent-green);
+  color: black;
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  font-weight: 700;
+}
+
+.feed-image {
+  margin-top: 1rem;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.feed-image img {
+  width: 100%;
+  border-radius: 10px;
+  display: block;
+}
+
+/* METRICS */
+.metrics h3 {
+  margin-bottom: 1rem;
+}
+
+.metric-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
+}
+
+.metric-item i {
+  color: var(--accent-blue);
+  margin-right: 0.5rem;
+}
+
+.metric-item span {
+  color: #bbb;
+}
+
+.metric-badge {
+  background: var(--accent-green);
+  color: black;
+  padding: 0.2rem 0.6rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+/* CONTROL PANEL */
+.control-panel h3 {
+  margin-bottom: 1rem;
+}
+
+.control-btn {
+  width: 100%;
+  padding: 0.9rem;
+  border-radius: 6px;
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.3s;
+  border: none;
+}
+
+.btn-blue {
+  background: var(--accent-blue);
+  color: #000;
+}
+
+.btn-green {
+  border: 1px solid var(--accent-green);
+  color: var(--accent-green);
+  background: transparent;
+}
+
+.btn-outline {
+  border: 1px solid var(--accent-blue);
+  color: var(--accent-blue);
+  background: transparent;
+}
+
+.control-btn:hover {
+  opacity: 0.8;
+}
+
+/* SYSTEM STATUS */
+.status h3 {
+  margin-bottom: 1rem;
+}
+
+.status-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
+}
+
+.status-item span {
+  color: var(--accent-blue);
+}
+
+.status-badge {
+  background: var(--accent-green);
+  color: black;
+  padding: 0.2rem 0.6rem;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+/* FOOTER */
+
+footer {
+  background-color: #111;
+  padding: 2rem 4rem;
+  color: #aaa;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-top: 3rem;
+}
+
+footer .logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+  font-weight: 700;
+}
+
+footer .links, footer .resources {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+footer a {
+  text-decoration: none;
+  color: var(--accent-blue);
+}
+/* General reset to prevent blue/purple defaults */
+a {
+  text-decoration: none;
+}
+
+/* Navbar links */
+nav ul li a {
+  color: #ccc;
+}
+
+nav ul li a:hover {
+  color: var(--accent-blue);
+}
+
+nav ul li.active a {
+  color: var(--accent-blue);
+}
+
+/* Footer links */
+footer a:link,
+footer a:visited {
+  color: var(--accent-blue);
+  text-decoration: none;
+}
+
+footer a:hover,
+footer a:active {
+  color: var(--accent-green);
+  text-decoration: none;
+}
+
+
+/* RESPONSIVE */
+@media (max-width: 1000px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  nav ul {
+    display: none;
+  }
+}
+</style>
+</head>
+
+<body>
+  <nav>
+    <div class="logo">⚡ <span>Dynamic Traffic Flow</span></div>
+    <ul>
+      <li><a href = "index.html">Home</a></li>
+      <li class="active">Live Dashboard</li>
+      <li>Analytics</li>
+      <li>Hardware</li>
+      <li><a href = "about.html">About Us</a></li>
+    </ul>
+  </nav>
+
+  <section class="dashboard">
+    <h1>Live Traffic Dashboard</h1>
+    <p>Real-time monitoring and control of intersection traffic flow</p>
+
+    <div class="dashboard-grid">
+      <!-- Left Column -->
+      <div>
+        <div class="card">
+          <div class="feed-header">
+              <h3>Live Intersection Feed</h3>
+              <span>ACTIVE</span>
+          </div>
+          <div class="feed-image">
+              <img src="Images/traffic.jpg" alt="Intersection Feed">
+          </div>
+      </div>
+
+      </div>
+
+      <!-- Right Column -->
+      <div class="right-panel">
+
+      
+
+      <!-- LOCATION DROPDOWN -->
+      <div class="card metrics">
+        <h3>Select Location</h3>
+
+        <select id="locationSelect" 
+                style="width:100%; padding:0.8rem; border-radius:6px; margin-top:0.5rem;
+                      background:#0f0f0f; color:white; border:1px solid #00f7ff;">
+          <option value="">-- Choose Intersection --</option>
+          <option value="loc1">Intersection A</option>
+          <option value="loc2">Intersection B</option>
+          <option value="loc3">Intersection C</option>
+        </select>
+
+        <button onclick="fetchTrafficData()" class="control-btn btn-blue" 
+                style="margin-top:1rem;">
+          Get Traffic Status
+        </button>
+      </div>
+
+      <div class="card vehicle-stats">
+          <h3>Vehicle Counts (ML Model)</h3>
+          <div id="vehicleCountOutput">
+              <p style="color:#888;">Waiting for data...</p>
+          </div>
+      </div>
+
+      <!-- LIVE SIGNAL OUTPUT -->
+      <div class="card metrics" style="margin-top:1rem;">
+        <h3>Current Signal Status</h3>
+        <div id="signalOutput" style="color:#ccc; margin-top:1rem;">
+          <i>Select a location to see live traffic signal output.</i>
+        </div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <footer>
+    <div>
+      <div class="logo">⚡ Dynamic Traffic Flow</div>
+      <p>Revolutionizing urban mobility through AI-powered traffic management systems that adapt, learn, and optimize in real-time.</p>
+      <p>© 2024 Dynamic Traffic Flow. All rights reserved.</p>
+    </div>
+
+    <div class="links">
+      <h4>Quick Links</h4>
+      <a href="index.html">Home</a>
+      <a href="#">Live Dashboard</a>
+      <a href="#">Analytics</a>
+      <a href="#">Hardware</a>
+    </div>
+
+    <div class="resources">
+      <h4>Resources</h4>
+      <a href="#">Documentation</a>
+      <a href="#">API Reference</a>
+      <a href="#">Demo Videos</a>
+      <a href="#">About Us</a>
+    </div>
+  </footer>
+
+  <script>
+
+  // Card 1: Show normal & emergency counts
+  function updateVehicleCountCard(counts) {
+      const container = document.getElementById("vehicleCountOutput");
+      let html = "";
+
+      counts.forEach(item => {
+          html += `
+              <div style="margin-bottom:0.8rem;">
+                  <strong>${item.lane_id}</strong><br>
+                  🚗 Normal: <span style="color:#00f7ff">${item.normal}</span><br>
+                  🚨 Emergency: <span style="color:#ff2f2f">${item.emergency}</span>
+              </div>
+              <hr style="border-color:#333;">
+          `;
+      });
+
+      container.innerHTML = html;
+  }
+
+
+  //  Card 2: Update signal status output
+  function updateSignalCard(output) {
+      let html = "";
+      const container = document.getElementById("signalOutput");
+
+      Object.keys(output).forEach(lane => {
+          const laneData = output[lane];
+          const state = laneData.state;
+
+          let color = "RED";
+          if (state[2] === 1) color = "GREEN";
+          if (state[1] === 1) color = "YELLOW";
+
+          html += `
+              <div style="margin-bottom: 1rem;">
+                  <strong>${lane}</strong><br>
+                  Signal: <span style="color:#00f7ff;">${color}</span><br>
+                  Wait Time: ${laneData.wait}<br>
+                  ${laneData.green_time ? `Green Time: ${laneData.green_time.toFixed(1)}s` : ""}
+              </div>
+              <hr style="border-color:#333;">
+          `;
+      });
+
+      container.innerHTML = html;
+  }
+
+
+
+  //  Main Function — Only uses Algo API
+  async function fetchTrafficData() {
+
+      //  YOUR INPUT (Replace with ML input later)
+      const mockInput =[
+  { "lane_id": "Lane_1", "normal": 15, "emergency": 0 },
+  { "lane_id": "Lane_2", "normal": 4,  "emergency": 0 },
+  { "lane_id": "Lane_3", "normal": 8,  "emergency": 0 },
+  { "lane_id": "Lane_4", "normal": 2,  "emergency": 0 }
+];
+
+
+
+      //  FIRST: Show counts in Vehicle Count Card
+      updateVehicleCountCard(mockInput);
+
+      try {
+          //  SECOND: Send to Algo API (deployed)
+          const response = await fetch("https://dynamictrafficalgo-1.onrender.com/update", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(mockInput)
+          });
+
+          const data = await response.json();
+          console.log(data);
+
+          if (!data.output) {
+              document.getElementById("signalOutput").innerHTML =
+                  "<span style='color:#ff2f2f;'>API Error</span>";
+              return;
+          }
+
+          //  THIRD: Update the Signal Card
+          updateSignalCard(data.output);
+
+      } catch (error) {
+          console.error(error);
+          document.getElementById("signalOutput").innerHTML =
+              "<span style='color:#ff2f2f;'>Connection Error</span>";
+      }
+  }
+
+  </script>
+
+
+
+</body>
+</html>
