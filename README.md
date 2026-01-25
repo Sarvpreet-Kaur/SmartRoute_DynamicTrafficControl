@@ -1,4 +1,4 @@
-# 🚦 Dynamic Traffic Control (Real-Time System)
+# 🚦 Dynamic Traffic Control / Smart Route (Real-Time System)
 
 ## Problem 🚧
 Urban traffic management systems predominantly rely on static or preconfigured signal timings, which are unable to adapt to real-time traffic conditions such as congestion surges, accidents, or emergency vehicle movement. This results in inefficient traffic flow, increased waiting times, higher fuel consumption, and delayed emergency response. Existing systems lack robust real-time sensing, analytics, and decision-making capabilities required for modern smart city environments.
